@@ -13,7 +13,8 @@ class App extends Component{
     this.reset = this.reset.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.boxClick = this.boxClick.bind(this)
-    this.check = this.check.bind(this)
+    // this.check = this.check.bind(this)
+    // this.checkPos = this.checkPos.bind(this)
   }
 
   componentDidMount(){
@@ -37,28 +38,7 @@ class App extends Component{
     console.log(size)
     // this.setState({grid: new Array(size).fill().map((elem, i) => i)})
   }
-
-  // params: index, symbol
-  check = params =>{
-    let count = 0
-
-    // vertically
-    // up
-    // down
-
-    // horizontally
-    // left
-    // right
-
-    // slope down diagonal
-    // diag-left
-    // diag-right
-
-    // slope up diagonal 
-    // diag-left
-    // diag-right
-
-  }
+  
 
   boxClick = index =>{
     console.log('clicked')
@@ -70,7 +50,10 @@ class App extends Component{
       symbol: newSymbol,
       boxStates: newBoxStates,
     })
-    this.check([index, symbol])
+    let won = check(newBoxStates, index, symbol, this.state.size)
+    if (won){
+      console.log("Winner")
+    }
   }
 
   render(){
@@ -103,5 +86,76 @@ class App extends Component{
     )
   }
 }
-
 export default App;
+
+// check if pos is out of bounds
+function checkPos(index, totalSize){
+  if (index < 0 || index >= totalSize){
+    return false
+  }
+  return true
+}
+
+function getCount(grid, index, status, size, symbol){
+  let count = 0
+  let totalSize = size*size
+  while(checkPos(index, totalSize)){
+    let remainder = index % size
+    if (grid[index] === symbol){ count++ }
+    if (status === 'up'){ index -= size}
+    else if (status === 'down'){ index += size}
+    else if (status === 'left'){
+      // left most side so done 
+      if (remainder === 0){ break }
+      // else continue going left
+      index--
+    }
+    else if (status === 'right'){
+      if (remainder === size-1) { break }
+      index++
+    }
+    else if (status === 'diag1-left'){ index -= (size+1) }
+    else if (status === 'diag1-right'){ index += (size+1) }
+    else if (status === 'diag2-left'){ index += (size-1) }
+    else if (status === 'diag2-right'){ index -= (size-1) }
+  }
+  return count
+}
+
+function check(boxStates, index, symbol, size){
+  // curr position is symbol, so count = 1
+  let count = 1 
+
+  // vertically
+  // up
+  count += getCount(boxStates, index-size, 'up', size, symbol)
+  // down
+  count += getCount(boxStates, index+size, 'down', size, symbol)
+  if (count === size){ return true}
+  count = 1
+
+  // horizontally
+  // left
+  count += getCount(boxStates, index-1, 'left', size, symbol)
+  // right
+  count += getCount(boxStates, index+1, 'right', size, symbol)
+  if (count === size){ return true}
+  count = 1
+
+  // slope down diagonal
+  // diag-left
+  count += getCount(boxStates, index-(size+1), 'diag1-left', size, symbol)
+  // diag-right
+  count += getCount(boxStates, index+(size+1), 'diag1-right', size, symbol)
+  if (count === size){ return true}
+  count = 1
+
+  // slope up diagonal 
+  // diag-left
+  count += getCount(boxStates, index+(size-1), 'diag2-left', size, symbol)
+  // diag-right
+  count += getCount(boxStates, index-(size-1), 'diag2-right', size, symbol)
+  if (count === size){ return true}
+
+  return false
+}
