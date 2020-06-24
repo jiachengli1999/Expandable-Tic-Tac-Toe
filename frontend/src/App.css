@@ -44,20 +44,20 @@
 
 .grid{
   /* border: 2px solid black; */
-  padding-bottom: 6.5%;
-  /* display: table; */
+  /* padding-bottom: 6.5%; */
   width: 60%;
+  height: 700px;
   margin-left: 20%;
   text-align: center;
-  table-layout: fixed;
 }
 
 .row{
   display: table;
-  /* border: 2px solid black; */
+  border: 2px solid black;
   text-align: center;
   width: 100%;
-  height: 100%;
+  /* height: 33%; */
+  /* table-layout: fixed; */
 }
 
 .row label{
@@ -65,11 +65,9 @@
   text-align: center;
   border: 1px solid black;
   vertical-align: middle;
-  padding: 50px;
   font-size: 50px;
-  width: 33%;
 }
 
 .row label:hover{
-  box-shadow: 0 0 11px rgba(33,33,33,.2); 
+  box-shadow: 0 0 11px rgb(153, 230, 91); 
 }

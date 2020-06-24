@@ -5,6 +5,7 @@ class App extends Component{
   constructor(){
     super()
     this.state = ({
+      resSize: 3,
       size: 3,
       symbol: 'o',
       boxStates: new Array(9).fill().map((elem, i) => '-'),
@@ -24,17 +25,22 @@ class App extends Component{
   }
 
   handleChange(e){
-    let val = e.target.value
+    let val = parseInt(e.target.value)
     console.log(val)
-    if (val > 3 && val < 6){
-      this.setState({size: val})
+    if (val >= 3 && val <= 9){
+      this.setState({
+        resSize: val
+      })
     }
   }
 
   handleClick(){
-    let size = this.state.size;
+    let size = this.state.resSize;
     console.log(size)
-    // this.setState({grid: new Array(size).fill().map((elem, i) => i)})
+    this.setState({
+      size: size,
+      boxStates: new Array(size*size).fill().map((elem, i) => '-')
+    })
   }
   
 
@@ -58,7 +64,9 @@ class App extends Component{
 
   render(){
     let size = this.state.size
+    console.log('size', size)
     let grid = new Array(size).fill().map((elem, i) => i)
+    console.log(grid)
 
     return (
       <div className='main'>
@@ -70,11 +78,14 @@ class App extends Component{
         <div className='name'>Tic-Tac-Toe</div>
         <div className='grid'>
           {grid.map((elem, rowIndex) => (
-              <div key={`row${rowIndex}`} className='row'>
+              <div key={`row${rowIndex}`} className='row'
+              style={{height: `${(100/this.state.size)}%`}}>
                 {/* Each row will have size amount of columns */}
                 {grid.map((elem, index)=> (
                   // index + (size*rowIndex) = unique index from 0-8 for 3x3 grid
-                  <label key={index + (size*rowIndex)} onClick={() => this.boxClick(index + (size*rowIndex))}>
+                  <label key={index + (size*rowIndex)} onClick={() => this.boxClick(index + (size*rowIndex))}
+                  style={{width: `${(100/this.state.size)}%`}}>
+                    {/* style={{width: `${(100/this.state.size)}%`}}  */}
                     {this.state.boxStates[index + (size*rowIndex)]}
                   </label>
                 ))}
