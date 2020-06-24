@@ -13,8 +13,6 @@ class App extends Component{
     this.reset = this.reset.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.boxClick = this.boxClick.bind(this)
-    // this.check = this.check.bind(this)
-    // this.checkPos = this.checkPos.bind(this)
   }
 
   componentDidMount(){
@@ -44,15 +42,17 @@ class App extends Component{
     console.log('clicked')
     let symbol = this.state.symbol
     let newBoxStates = this.state.boxStates
-    newBoxStates[index] = symbol
-    let newSymbol = (symbol === 'o') ? 'x' : 'o'
-    this.setState({
-      symbol: newSymbol,
-      boxStates: newBoxStates,
-    })
-    let won = check(newBoxStates, index, symbol, this.state.size)
-    if (won){
-      console.log("Winner")
+    if (newBoxStates[index] === '-'){
+      newBoxStates[index] = symbol
+      let newSymbol = (symbol === 'o') ? 'x' : 'o'
+      this.setState({
+        symbol: newSymbol,
+        boxStates: newBoxStates,
+      })
+      let won = check(newBoxStates, index, symbol, this.state.size)
+      if (won){
+        console.log("Winner")
+      }
     }
   }
 
@@ -125,6 +125,7 @@ function getCount(grid, index, status, size, symbol){
 function check(boxStates, index, symbol, size){
   // curr position is symbol, so count = 1
   let count = 1 
+  let remainder = index % size
 
   // vertically
   // up
@@ -136,9 +137,13 @@ function check(boxStates, index, symbol, size){
 
   // horizontally
   // left
-  count += getCount(boxStates, index-1, 'left', size, symbol)
+  if (remainder !== 0){
+    count += getCount(boxStates, index-1, 'left', size, symbol)
+  }
   // right
-  count += getCount(boxStates, index+1, 'right', size, symbol)
+  if (remainder !== (size-1)){
+    count += getCount(boxStates, index+1, 'right', size, symbol)
+  }
   if (count === size){ return true}
   count = 1
 
