@@ -5,6 +5,9 @@ class App extends Component{
   constructor(){
     super()
     this.state = ({
+      name: '',
+      playerIndex: 0,
+      players: new Array(4).fill().map((elem, i) => ''),
       resSize: 3,
       size: 3,
       symbol: 'o',
@@ -14,6 +17,9 @@ class App extends Component{
     this.reset = this.reset.bind(this)
     this.handleClick = this.handleClick.bind(this)
     this.boxClick = this.boxClick.bind(this)
+    this.assignName = this.assignName.bind(this)
+    this.addPlayer = this.addPlayer.bind(this)
+    this.addBot = this.addBot.bind(this)
   }
 
   componentDidMount(){
@@ -62,8 +68,28 @@ class App extends Component{
     }
   }
 
+  assignName(e){
+    this.setState({name: e.target.value})
+  }
+
+  addBot(){
+  
+  }
+
+  addPlayer(){
+    if (this.state.name !== '' && this.state.playerIndex < 4){
+      let newPlayers = this.state.players
+      let index = this.state.playerIndex
+      newPlayers[index] = [this.state.name, 0]
+      this.setState({
+        playerIndex: index + 1,
+        players: newPlayers
+      })
+    }
+  }
   render(){
     let size = this.state.size
+    let player_count = this.state.playerIndex
     console.log('size', size)
     let grid = new Array(size).fill().map((elem, i) => i)
     console.log(grid)
@@ -74,23 +100,38 @@ class App extends Component{
           <label className='label1'>Grid Size: </label>
           <input onChange={this.handleChange}/>
           <label className='btn' onClick={this.handleClick}>Submit</label>
+          <div className='add_player'>
+            <input onChange={this.assignName}/>
+            <label className='btn' onClick={this.addPlayer}>Add Player</label>
+            <label className='btn' onClick={this.addBot}>Add Bot</label>
+          </div>
         </div>
         <div className='name'>Tic-Tac-Toe</div>
-        <div className='grid'>
-          {grid.map((elem, rowIndex) => (
-              <div key={`row${rowIndex}`} className='row'
-              style={{height: `${(100/this.state.size)}%`}}>
-                {/* Each row will have size amount of columns */}
-                {grid.map((elem, index)=> (
-                  // index + (size*rowIndex) = unique index from 0-8 for 3x3 grid
-                  <label key={index + (size*rowIndex)} onClick={() => this.boxClick(index + (size*rowIndex))}
-                  style={{width: `${(100/this.state.size)}%`}}>
-                    {/* style={{width: `${(100/this.state.size)}%`}}  */}
-                    {this.state.boxStates[index + (size*rowIndex)]}
-                  </label>
-                ))}
-              </div>
-          ))}
+        <div className='body'>
+          <div className='players'>
+            {[...Array(player_count)].map((e, i) => (
+                <div className='player' style={{height: `${100/player_count}%`}}>
+                  <label className='player-name'>{this.state.players[i][0]}</label>
+                  <label className='score'>{this.state.players[i][1]}</label>
+                </div>
+            ))}
+          </div>
+          <div className='grid'>
+            {grid.map((elem, rowIndex) => (
+                <div key={`row${rowIndex}`} className='row'
+                style={{height: `${(100/this.state.size)}%`}}>
+                  {/* Each row will have size amount of columns */}
+                  {grid.map((elem, index)=> (
+                    // index + (size*rowIndex) = unique index from 0-8 for 3x3 grid
+                    <label key={index + (size*rowIndex)} onClick={() => this.boxClick(index + (size*rowIndex))}
+                    style={{width: `${(100/this.state.size)}%`}}>
+                      {/* style={{width: `${(100/this.state.size)}%`}}  */}
+                      {this.state.boxStates[index + (size*rowIndex)]}
+                    </label>
+                  ))}
+                </div>
+            ))}
+          </div>
         </div>
         <div className='footer'></div>
       </div>
