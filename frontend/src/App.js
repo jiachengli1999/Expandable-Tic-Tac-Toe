@@ -21,6 +21,7 @@ class App extends Component{
       winner: null,
       resWinCondition: 3,
       winCondition: 3,
+      disabled: false,
     })
     this.handleChange = this.handleChange.bind(this)
     this.reset = this.reset.bind(this)
@@ -42,7 +43,10 @@ class App extends Component{
   reset(){
     let size = this.state.size
     let newBoxes = new Array(size*size).fill().map((elem, i) => '-')
-    this.setState({boxStates: newBoxes, currPlayerIndex: 0, winner: null})
+    this.setState({
+      boxStates: newBoxes, currPlayerIndex: 0, 
+      winner: null, disabled: false
+    })
     this.resetColor()
   }
 
@@ -74,6 +78,7 @@ class App extends Component{
       winner: null,
       currPlayerIndex: 0,
       winCondition: size,
+      disabled: false
     })
     this.resetColor()
   }
@@ -83,9 +88,13 @@ class App extends Component{
     console.log('clicked')
     console.log('index:', index)
 
+
     if (this.state.playerIndex < 1){ return }
     let newBoxStates = this.state.boxStates
     if (newBoxStates[index] === '-' && !this.state.winner){
+      // disable setWinCondition
+      this.setState({disabled: true})
+
       // let symbol = this.state.symbol
       let currPlayerIndex = this.state.currPlayerIndex
       let currPlayer = this.state.players[currPlayerIndex]
@@ -175,18 +184,19 @@ class App extends Component{
           <div className='add_player'>
             <input onChange={this.assignName} placeholder='Bob'/>
             <label className='btn' onClick={this.addPlayer}>Add Player</label>
-            <label className='btn' onClick={this.addBot}>Add Bot</label>
+            {/* <label className='btn' onClick={this.addBot}>Add Bot</label> */}
           </div>
           <div className='win_condition'>
             <label className='win-label'>Win Condition:</label>
-            <input onChange={this.setWinCondition} placeholder='3 -> size'/>
+            <input onChange={this.setWinCondition} placeholder='3 -> size'
+            disabled={this.state.disabled}/>
             <label className='btn' onClick={this.changeWinCondition}>Submit</label>
           </div>
           <label className='reset btn' onClick={this.reset}>Reset</label>
         </div>
         <div className='msg'>{message}</div>
         <div>
-          <div className='instr'>Begin by adding 2 players/bots</div>
+          <div className='instr'>Begin by adding 2 players</div>
           <div className='display_win_condition'>
             <div className='statement'>Win Condition:</div> 
             <div className='num'>{this.state.winCondition}</div>
