@@ -221,14 +221,14 @@ class App extends Component{
           <div className='grid'>
             {grid.map((elem, rowIndex) => (
                 <div key={`row${rowIndex}`} className='row'
-                style={{height: `${(100/this.state.size)}%`}}>
+                style={{height: `${(100/size)}%`}}>
                   {/* Each row will have size amount of columns */}
-                  {grid.map((elem, index)=> (
+                  {[...Array(size)].map((e, index) => (
                     // index + (size*rowIndex) = unique index from 0-8 for 3x3 grid
                     <label key={index + (size*rowIndex)} 
                     className='boxes'
                     onClick={() => this.boxClick(index + (size*rowIndex))}
-                    style={{width: `${(100/this.state.size)}%`}}>
+                    style={{width: `${(100/size)}%`}}>
                       {/* style={{width: `${(100/this.state.size)}%`}}  */}
                       {this.state.boxStates[index + (size*rowIndex)]}
                     </label>
