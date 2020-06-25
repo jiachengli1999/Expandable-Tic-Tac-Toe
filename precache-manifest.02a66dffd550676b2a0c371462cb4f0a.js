@@ -1,11 +1,11 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "450c25f89960fa90a77dfaa1d803f03c",
+    "revision": "8dacb0a0bdd27f935abe4ae3584127c8",
     "url": "/Expandable-Tic-Tac-Toe/index.html"
   },
   {
-    "revision": "3cba46226bd2c51cd92e",
-    "url": "/Expandable-Tic-Tac-Toe/static/css/main.3146262e.chunk.css"
+    "revision": "2eb32a62aa26ba573be2",
+    "url": "/Expandable-Tic-Tac-Toe/static/css/main.ce2df7e6.chunk.css"
   },
   {
     "revision": "b22174ca0e70761bc7a3",
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Expandable-Tic-Tac-Toe/static/js/2.727e10c8.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "3cba46226bd2c51cd92e",
-    "url": "/Expandable-Tic-Tac-Toe/static/js/main.de749d15.chunk.js"
+    "revision": "2eb32a62aa26ba573be2",
+    "url": "/Expandable-Tic-Tac-Toe/static/js/main.f7c92296.chunk.js"
   },
   {
     "revision": "1a866070e51b12763939",
