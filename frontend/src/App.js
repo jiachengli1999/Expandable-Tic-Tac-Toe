@@ -1,17 +1,23 @@
 import React, { Component } from 'react';
 import './App.css';
 
+const CURRENT = '#ffffb3'
+const DEFAULT = 'rgb(22, 146, 125)'
+
 class App extends Component{
   constructor(){
     super()
     this.state = ({
       name: '',
       playerIndex: 0,
+      currPlayerIndex: 0,
       players: new Array(4).fill().map((elem, i) => ''),
       resSize: 3,
       size: 3,
       symbol: 'o',
       boxStates: new Array(9).fill().map((elem, i) => '-'),
+      showModal: false,
+      winner: null,
     })
     this.handleChange = this.handleChange.bind(this)
     this.reset = this.reset.bind(this)
@@ -23,13 +29,16 @@ class App extends Component{
   }
 
   componentDidMount(){
-    this.reset()
-  }
-
-  reset(){
     this.setState({size: 3})
   }
 
+  reset(){
+    let size = this.state.size
+    let newBoxes = new Array(size*size).fill().map((elem, i) => '-')
+    this.setState({boxStates: newBoxes, currPlayerIndex: 0, winner: null})
+  }
+
+  // Get size input 
   handleChange(e){
     let val = parseInt(e.target.value)
     console.log(val)
@@ -40,29 +49,44 @@ class App extends Component{
     }
   }
 
+  // Get new grid
   handleClick(){
     let size = this.state.resSize;
     console.log(size)
     this.setState({
       size: size,
-      boxStates: new Array(size*size).fill().map((elem, i) => '-')
+      boxStates: new Array(size*size).fill().map((elem, i) => '-'),
+      winner: null,
     })
   }
   
 
   boxClick = index =>{
     console.log('clicked')
-    let symbol = this.state.symbol
+    if (this.state.playerIndex < 1){ return }
     let newBoxStates = this.state.boxStates
-    if (newBoxStates[index] === '-'){
+    if (newBoxStates[index] === '-' && !this.state.winner){
+      // let symbol = this.state.symbol
+      let currPlayerIndex = this.state.currPlayerIndex
+      let currPlayer = this.state.players[currPlayerIndex]
+      let symbol = currPlayer[2]
       newBoxStates[index] = symbol
-      let newSymbol = (symbol === 'o') ? 'x' : 'o'
+      // let newSymbol = (symbol === 'o') ? 'x' : 'o'
+      let newPlayerIndex = currPlayerIndex + 1
+      newPlayerIndex = (newPlayerIndex >= this.state.playerIndex) ? 0 : newPlayerIndex
       this.setState({
-        symbol: newSymbol,
+        currPlayerIndex: newPlayerIndex,
         boxStates: newBoxStates,
       })
-      let won = check(newBoxStates, index, symbol, this.state.size)
-      if (won){
+      let win = check(newBoxStates, index, symbol, this.state.size)
+      if (win){
+        // update winner's score
+        let currPlayers = this.state.players
+        currPlayers[currPlayerIndex][1] += 1
+        this.setState({players: currPlayers, winner: currPlayers[currPlayerIndex][0]})
+        // // Add model to say winner and option to reset curr grid 
+        // this.OpenModal()
+
         console.log("Winner")
       }
     }
@@ -80,14 +104,18 @@ class App extends Component{
     if (this.state.name !== '' && this.state.playerIndex < 4){
       let newPlayers = this.state.players
       let index = this.state.playerIndex
-      newPlayers[index] = [this.state.name, 0]
+      let symbol = getSymbol(index)
+      // store [name, score, symbol]
+      newPlayers[index] = [this.state.name, 0, symbol]
       this.setState({
         playerIndex: index + 1,
         players: newPlayers
       })
     }
   }
+
   render(){
+    let message = this.state.winner ? 'Winner: '+this.state.winner : 'Tic-Tac-Toe'
     let size = this.state.size
     let player_count = this.state.playerIndex
     console.log('size', size)
@@ -96,6 +124,7 @@ class App extends Component{
 
     return (
       <div className='main'>
+        {/* <MyModal showModal={this.state.showModal} closeModal={this.CloseModal}/> */}
         <div className='header'>
           <label className='label1'>Grid Size: </label>
           <input onChange={this.handleChange}/>
@@ -105,13 +134,18 @@ class App extends Component{
             <label className='btn' onClick={this.addPlayer}>Add Player</label>
             <label className='btn' onClick={this.addBot}>Add Bot</label>
           </div>
+          <label className='reset btn' onClick={this.reset}>Reset</label>
         </div>
-        <div className='name'>Tic-Tac-Toe</div>
+        <div className='msg'>{message}</div>
+        <div className='instr'>Begin by adding 2 players/bots</div>
         <div className='body'>
           <div className='players'>
             {[...Array(player_count)].map((e, i) => (
                 <div className='player' style={{height: `${100/player_count}%`}}>
-                  <label className='player-name'>{this.state.players[i][0]}</label>
+                  <label className='player-name' 
+                  style={{backgroundColor: i === this.state.currPlayerIndex ? CURRENT : DEFAULT}}>
+                    {this.state.players[i][0]}, symbol: {this.state.players[i][2]}
+                  </label>
                   <label className='score'>{this.state.players[i][1]}</label>
                 </div>
             ))}
@@ -133,13 +167,17 @@ class App extends Component{
             ))}
           </div>
         </div>
-        <div className='footer'></div>
       </div>
     )
   }
 }
 export default App;
 
+// returns the symbol for the corresponding player 
+function getSymbol(index){
+  let symbols = ['o', 'x', 's', 'q']
+  return symbols[index]
+}
 // check if pos is out of bounds
 function checkPos(index, totalSize){
   if (index < 0 || index >= totalSize){
@@ -148,6 +186,8 @@ function checkPos(index, totalSize){
   return true
 }
 
+// remainder === 0 means elem on first column 
+// remainder === size-1 means elem on last column 
 function getCount(grid, index, status, size, symbol){
   let count = 0
   let totalSize = size*size
@@ -166,10 +206,22 @@ function getCount(grid, index, status, size, symbol){
       if (remainder === size-1) { break }
       index++
     }
-    else if (status === 'diag1-left'){ index -= (size+1) }
-    else if (status === 'diag1-right'){ index += (size+1) }
-    else if (status === 'diag2-left'){ index += (size-1) }
-    else if (status === 'diag2-right'){ index -= (size-1) }
+    else if (status === 'diag1-left'){ 
+      if (remainder === 0){ break }
+      index -= (size+1) 
+    }
+    else if (status === 'diag1-right'){ 
+      if (remainder === size-1) { break }
+      index += (size+1) 
+    }
+    else if (status === 'diag2-left'){ 
+      if (remainder === 0){ break }
+      index += (size-1) 
+    }
+    else if (status === 'diag2-right'){ 
+      if (remainder === size-1) { break }
+      index -= (size-1) 
+    }
   }
   return count
 }
@@ -184,6 +236,7 @@ function check(boxStates, index, symbol, size){
   count += getCount(boxStates, index-size, 'up', size, symbol)
   // down
   count += getCount(boxStates, index+size, 'down', size, symbol)
+  console.log('vert', count)
   if (count === size){ return true}
   count = 1
 
@@ -196,22 +249,33 @@ function check(boxStates, index, symbol, size){
   if (remainder !== (size-1)){
     count += getCount(boxStates, index+1, 'right', size, symbol)
   }
+  console.log('horz', count)
   if (count === size){ return true}
   count = 1
 
   // slope down diagonal
   // diag-left
-  count += getCount(boxStates, index-(size+1), 'diag1-left', size, symbol)
+  if (remainder !== 0){
+    count += getCount(boxStates, index-(size+1), 'diag1-left', size, symbol)
+  }
   // diag-right
-  count += getCount(boxStates, index+(size+1), 'diag1-right', size, symbol)
+  if (remainder !== (size-1)){
+    count += getCount(boxStates, index+(size+1), 'diag1-right', size, symbol)
+  }
+  console.log('diag1', count)
   if (count === size){ return true}
   count = 1
 
   // slope up diagonal 
   // diag-left
-  count += getCount(boxStates, index+(size-1), 'diag2-left', size, symbol)
+  if (remainder !== 0){
+    count += getCount(boxStates, index+(size-1), 'diag2-left', size, symbol)
+  }
   // diag-right
-  count += getCount(boxStates, index-(size-1), 'diag2-right', size, symbol)
+  if (remainder !== (size-1)){
+    count += getCount(boxStates, index-(size-1), 'diag2-right', size, symbol)
+  }
+  console.log('diag2', count)
   if (count === size){ return true}
 
   return false

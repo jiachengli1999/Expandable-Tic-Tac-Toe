@@ -38,10 +38,25 @@
   color: black;
 }
 
-.name{
+.main .header .add_player{
+  padding: 0px 50px;
+}
+
+.reset{
+  border-color: red;
+  color: red;
+}
+
+.msg{
   padding: 12px;
   font-size: 50px;
   text-align: center;
+}
+
+.instr{
+  font-size: 18px;
+  margin-left: 100px;
+  padding: 4.5px;
 }
 
 .players, .grid{
