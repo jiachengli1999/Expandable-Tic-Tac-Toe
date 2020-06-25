@@ -83,7 +83,7 @@ class App extends Component{
         currPlayerIndex: newPlayerIndex,
         boxStates: newBoxStates,
       })
-      let win = check(newBoxStates, index, symbol, this.state.size)
+      let win = check(newBoxStates, index, symbol, this.state.size, this.state.winCondition)
       if (win){
         // update winner's score
         let currPlayers = this.state.players
@@ -120,7 +120,7 @@ class App extends Component{
   }
 
   setWinCondition(e){
-    let num = e.target.value
+    let num = parseInt(e.target.value)
     if (num >= 3 && num <= this.state.size){
       this.setState({resWinCondition: num})
     }
@@ -260,7 +260,7 @@ function getCount(grid, index, status, size, symbol){
   return count
 }
 
-function check(boxStates, index, symbol, size){
+function check(boxStates, index, symbol, size, win_condition){
   // curr position is symbol, so count = 1
   let count = 1 
   let remainder = index % size
@@ -271,7 +271,7 @@ function check(boxStates, index, symbol, size){
   // down
   count += getCount(boxStates, index+size, 'down', size, symbol)
   console.log('vert', count)
-  if (count === size){ return true}
+  if (count === win_condition){ return true}
   count = 1
 
   // horizontally
@@ -284,7 +284,7 @@ function check(boxStates, index, symbol, size){
     count += getCount(boxStates, index+1, 'right', size, symbol)
   }
   console.log('horz', count)
-  if (count === size){ return true}
+  if (count === win_condition){ return true}
   count = 1
 
   // slope down diagonal
@@ -297,7 +297,8 @@ function check(boxStates, index, symbol, size){
     count += getCount(boxStates, index+(size+1), 'diag1-right', size, symbol)
   }
   console.log('diag1', count)
-  if (count === size){ return true}
+  console.log('win_cond:', win_condition)
+  if (count === win_condition){ return true}
   count = 1
 
   // slope up diagonal 
@@ -310,7 +311,7 @@ function check(boxStates, index, symbol, size){
     count += getCount(boxStates, index-(size-1), 'diag2-right', size, symbol)
   }
   console.log('diag2', count)
-  if (count === size){ return true}
+  if (count === win_condition){ return true}
 
   return false
 }
