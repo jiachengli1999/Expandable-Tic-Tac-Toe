@@ -3,6 +3,7 @@ import './App.css';
 
 const CURRENT = '#ffffb3'
 const DEFAULT = 'rgb(22, 146, 125)'
+const WIN_COLOR = '#efffcc'
 
 class App extends Component{
   constructor(){
@@ -30,6 +31,8 @@ class App extends Component{
     this.addBot = this.addBot.bind(this)
     this.setWinCondition = this.setWinCondition.bind(this)
     this.changeWinCondition = this.changeWinCondition.bind(this)
+    this.colorIndexes = this.colorIndexes.bind(this)
+    this.resetColor.bind(this)
   }
 
   componentDidMount(){
@@ -40,6 +43,14 @@ class App extends Component{
     let size = this.state.size
     let newBoxes = new Array(size*size).fill().map((elem, i) => '-')
     this.setState({boxStates: newBoxes, currPlayerIndex: 0, winner: null})
+    this.resetColor()
+  }
+
+  resetColor(){
+    let boxes = document.getElementsByClassName('boxes')
+    for (let i=0; i < boxes.length; i++){
+      boxes[i].style.backgroundColor = DEFAULT
+    }
   }
 
   // Get size input 
@@ -61,13 +72,17 @@ class App extends Component{
       size: size,
       boxStates: new Array(size*size).fill().map((elem, i) => '-'),
       winner: null,
+      currPlayerIndex: 0,
       winCondition: size,
     })
+    this.resetColor()
   }
   
 
   boxClick = index =>{
     console.log('clicked')
+    console.log('index:', index)
+
     if (this.state.playerIndex < 1){ return }
     let newBoxStates = this.state.boxStates
     if (newBoxStates[index] === '-' && !this.state.winner){
@@ -83,7 +98,9 @@ class App extends Component{
         currPlayerIndex: newPlayerIndex,
         boxStates: newBoxStates,
       })
+      // Get array of successful indexes or null 
       let win = check(newBoxStates, index, symbol, this.state.size, this.state.winCondition)
+      console.log('win', win)
       if (win){
         // update winner's score
         let currPlayers = this.state.players
@@ -91,6 +108,7 @@ class App extends Component{
         this.setState({players: currPlayers, winner: currPlayers[currPlayerIndex][0]})
         // // Add model to say winner and option to reset curr grid 
         // this.OpenModal()
+        this.colorIndexes(win)
 
         console.log("Winner")
       }
@@ -133,13 +151,19 @@ class App extends Component{
     }
   }
 
+  colorIndexes = array =>{
+    let boxes = document.getElementsByClassName('boxes')
+    for(let i =0; i< array.length; i++){
+      boxes[array[i]].style.backgroundColor = WIN_COLOR
+    }
+  }
+
   render(){
     let message = this.state.winner ? 'Winner: '+this.state.winner : 'Tic-Tac-Toe'
     let size = this.state.size
     let player_count = this.state.playerIndex
     console.log('size', size)
     let grid = new Array(size).fill().map((elem, i) => i)
-    console.log(grid)
 
     return (
       <div className='main'>
@@ -191,7 +215,9 @@ class App extends Component{
                   {/* Each row will have size amount of columns */}
                   {grid.map((elem, index)=> (
                     // index + (size*rowIndex) = unique index from 0-8 for 3x3 grid
-                    <label key={index + (size*rowIndex)} onClick={() => this.boxClick(index + (size*rowIndex))}
+                    <label key={index + (size*rowIndex)} 
+                    className='boxes'
+                    onClick={() => this.boxClick(index + (size*rowIndex))}
                     style={{width: `${(100/this.state.size)}%`}}>
                       {/* style={{width: `${(100/this.state.size)}%`}}  */}
                       {this.state.boxStates[index + (size*rowIndex)]}
@@ -222,12 +248,20 @@ function checkPos(index, totalSize){
 
 // remainder === 0 means elem on first column 
 // remainder === size-1 means elem on last column 
+// returns count of consecutive symbols
+// returns a list of the symbols' index 
 function getCount(grid, index, status, size, symbol){
   let count = 0
+  let indexes = []
   let totalSize = size*size
   while(checkPos(index, totalSize)){
     let remainder = index % size
-    if (grid[index] === symbol){ count++ }
+    if (grid[index] === symbol){ 
+      count++ 
+      indexes.push(index)
+    }
+    else{ break }
+
     if (status === 'up'){ index -= size}
     else if (status === 'down'){ index += size}
     else if (status === 'left'){
@@ -257,61 +291,88 @@ function getCount(grid, index, status, size, symbol){
       index -= (size-1) 
     }
   }
-  return count
+  return [count, indexes]
 }
 
 function check(boxStates, index, symbol, size, win_condition){
   // curr position is symbol, so count = 1
   let count = 1 
   let remainder = index % size
-
+  let indexes = [index]
   // vertically
   // up
-  count += getCount(boxStates, index-size, 'up', size, symbol)
+  let result = getCount(boxStates, index-size, 'up', size, symbol)
+  count += result[0]
+  indexes.push(...result[1])
+  console.log('up', count)
   // down
-  count += getCount(boxStates, index+size, 'down', size, symbol)
+  result = getCount(boxStates, index+size, 'down', size, symbol)
+  count += result[0]
+  indexes.push(...result[1])
+  console.log('down', count)
   console.log('vert', count)
-  if (count === win_condition){ return true}
+  if (count === win_condition){ return indexes}
   count = 1
+  indexes = [index]
 
   // horizontally
   // left
   if (remainder !== 0){
-    count += getCount(boxStates, index-1, 'left', size, symbol)
+    result = getCount(boxStates, index-1, 'left', size, symbol)
+    count += result[0]
+    indexes.push(...result[1])
+    console.log('left', count)
   }
   // right
   if (remainder !== (size-1)){
-    count += getCount(boxStates, index+1, 'right', size, symbol)
+    result = getCount(boxStates, index+1, 'right', size, symbol)
+    count += result[0]
+    indexes.push(...result[1])
+    console.log('right', count)
   }
   console.log('horz', count)
-  if (count === win_condition){ return true}
+  if (count === win_condition){ return indexes}
   count = 1
+  indexes = [index]
 
   // slope down diagonal
   // diag-left
   if (remainder !== 0){
-    count += getCount(boxStates, index-(size+1), 'diag1-left', size, symbol)
+    result = getCount(boxStates, index-(size+1), 'diag1-left', size, symbol)
+    count += result[0]
+    indexes.push(...result[1])
+    console.log('diag1-left', count)
   }
   // diag-right
   if (remainder !== (size-1)){
-    count += getCount(boxStates, index+(size+1), 'diag1-right', size, symbol)
+    result = getCount(boxStates, index+(size+1), 'diag1-right', size, symbol)
+    count += result[0]
+    indexes.push(...result[1])
+    console.log('diag1-right', count)
   }
   console.log('diag1', count)
   console.log('win_cond:', win_condition)
-  if (count === win_condition){ return true}
+  if (count === win_condition){ return indexes}
   count = 1
+  indexes = [index]
 
   // slope up diagonal 
   // diag-left
   if (remainder !== 0){
-    count += getCount(boxStates, index+(size-1), 'diag2-left', size, symbol)
+    result = getCount(boxStates, index+(size-1), 'diag2-left', size, symbol)
+    count += result[0]
+    indexes.push(...result[1])
+    console.log('diag2-left', count)
   }
   // diag-right
   if (remainder !== (size-1)){
-    count += getCount(boxStates, index-(size-1), 'diag2-right', size, symbol)
+    result = getCount(boxStates, index-(size-1), 'diag2-right', size, symbol)
+    count += result[0]
+    indexes.push(...result[1])
+    console.log('diag2-right', count)
   }
   console.log('diag2', count)
-  if (count === win_condition){ return true}
+  if (count === win_condition){ return indexes}
 
-  return false
+  return null
 }
