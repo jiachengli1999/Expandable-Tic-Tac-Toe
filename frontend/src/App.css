@@ -99,14 +99,6 @@
   font-weight: bold;
 }
 
-.body{
-  position: relative;
-  width: 100%;
-  height: 100%; 
-  /* background-color: rgb(22, 146, 125); */
-  /* overflow: auto; */
-}
-
 .players, .grid{
   float: left;
 }

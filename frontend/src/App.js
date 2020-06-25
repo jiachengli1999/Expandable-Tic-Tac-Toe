@@ -209,7 +209,7 @@ class App extends Component{
         <div className='body'>
           <div className='players'>
             {[...Array(player_count)].map((e, i) => (
-                <div className='player' style={{height: `${100/player_count}%`}}>
+                <div className='player' key={`p${i}`} style={{height: `${100/player_count}%`}}>
                   <label className='player-name' 
                   style={{backgroundColor: i === this.state.currPlayerIndex ? CURRENT : DEFAULT}}>
                     {this.state.players[i][0]}, symbol: {this.state.players[i][2]}
