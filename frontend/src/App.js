@@ -18,6 +18,8 @@ class App extends Component{
       boxStates: new Array(9).fill().map((elem, i) => '-'),
       showModal: false,
       winner: null,
+      resWinCondition: 3,
+      winCondition: 3,
     })
     this.handleChange = this.handleChange.bind(this)
     this.reset = this.reset.bind(this)
@@ -26,6 +28,8 @@ class App extends Component{
     this.assignName = this.assignName.bind(this)
     this.addPlayer = this.addPlayer.bind(this)
     this.addBot = this.addBot.bind(this)
+    this.setWinCondition = this.setWinCondition.bind(this)
+    this.changeWinCondition = this.changeWinCondition.bind(this)
   }
 
   componentDidMount(){
@@ -57,6 +61,7 @@ class App extends Component{
       size: size,
       boxStates: new Array(size*size).fill().map((elem, i) => '-'),
       winner: null,
+      winCondition: size,
     })
   }
   
@@ -114,6 +119,20 @@ class App extends Component{
     }
   }
 
+  setWinCondition(e){
+    let num = e.target.value
+    if (num >= 3 && num <= this.state.size){
+      this.setState({resWinCondition: num})
+    }
+  }
+  
+  changeWinCondition(){
+    let num = this.state.resWinCondition
+    if (num >= 3 && num <= this.state.size){
+      this.setState({winCondition: num})
+    }
+  }
+
   render(){
     let message = this.state.winner ? 'Winner: '+this.state.winner : 'Tic-Tac-Toe'
     let size = this.state.size
@@ -127,17 +146,32 @@ class App extends Component{
         {/* <MyModal showModal={this.state.showModal} closeModal={this.CloseModal}/> */}
         <div className='header'>
           <label className='label1'>Grid Size: </label>
-          <input onChange={this.handleChange}/>
+          <input onChange={this.handleChange} placeholder='3 -> 9'/>
           <label className='btn' onClick={this.handleClick}>Submit</label>
           <div className='add_player'>
-            <input onChange={this.assignName}/>
+            <input onChange={this.assignName} placeholder='Bob'/>
             <label className='btn' onClick={this.addPlayer}>Add Player</label>
             <label className='btn' onClick={this.addBot}>Add Bot</label>
+          </div>
+          <div className='win_condition'>
+            <label className='win-label'>Win Condition:</label>
+            <input onChange={this.setWinCondition} placeholder='3 -> size'/>
+            <label className='btn' onClick={this.changeWinCondition}>Submit</label>
           </div>
           <label className='reset btn' onClick={this.reset}>Reset</label>
         </div>
         <div className='msg'>{message}</div>
-        <div className='instr'>Begin by adding 2 players/bots</div>
+        <div>
+          <div className='instr'>Begin by adding 2 players/bots</div>
+          <div className='display_win_condition'>
+            <div className='statement'>Win Condition:</div> 
+            <div className='num'>{this.state.winCondition}</div>
+          </div>
+          <div className='display_grid_size'>
+            <div className='statement'>Grid Size:</div> 
+            <div className='grid_size'>{this.state.size}X{this.state.size}</div>
+          </div>
+        </div>
         <div className='body'>
           <div className='players'>
             {[...Array(player_count)].map((e, i) => (

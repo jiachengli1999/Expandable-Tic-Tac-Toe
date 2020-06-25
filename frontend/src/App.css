@@ -42,10 +42,17 @@
   padding: 0px 50px;
 }
 
-.reset{
+.header .win_condition{
+  color: white;
+  /* margin-left: 50px; */
+}
+
+.header .reset{
   border-color: red;
   color: red;
+  margin-left: 50px;
 }
+
 
 .msg{
   padding: 12px;
@@ -53,10 +60,43 @@
   text-align: center;
 }
 
+.instr, .display_win_condition{
+  float: left;
+}
 .instr{
   font-size: 18px;
   margin-left: 100px;
-  padding: 4.5px;
+  /* padding: 4.5px; */
+}
+
+.display_win_condition .statement, .num{
+    float:left;
+}
+.display_win_condition{
+  padding-left: 110px;
+  font-size: 20px;
+  padding-bottom: 5px;
+}
+.num{
+  margin-left: 10px;
+  border: 1px solid black;
+  text-align: center;
+  width: 30px;
+  border-radius: 50%;
+  color: white;
+  background-color: black;
+}
+
+.display_grid_size .statement, .grid_size{
+  float: left;
+  font-size: 20px;
+  padding: 0 5px;
+}
+.display_grid_size .statement{
+  margin-left: 50px;
+}
+.display_grid_size .grid_size{
+  font-weight: bold;
 }
 
 .players, .grid{
@@ -64,6 +104,8 @@
 }
 
 .players{
+  /* clear float:left from .instr and .display... */
+  clear: left;
   border: 2px solid black;
   height: 700px;
   width: 20%;
